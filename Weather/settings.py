@@ -76,8 +76,12 @@ WSGI_APPLICATION = "Weather.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",               # Настройка подключения к базе данных MySQL
+        "NAME": "django_weather",
+        "USER": "root",
+        "PASSWORD": "#lada2023_suPer",
+        "HOST": "localhost",
+        "PORT": "3306",
     }
 }
 
