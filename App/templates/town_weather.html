@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h3>Погода в городе {{town}}</h3>
+    <p>Состояние погоды: {{state}}</p>
+    <p>Температура: {{temp}} °C</p>
+    <p>Ощущается как: {{temp_feel}} °C</p>
+    <p>Ветер: {{wind}} м/с</p>
+    <p>Давление: {{pressure}} мм рт. ст.</p>
+{% endblock %}
