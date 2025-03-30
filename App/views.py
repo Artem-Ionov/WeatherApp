@@ -1,6 +1,10 @@
 from django.shortcuts import render
 from .forms import TownForm
 import requests
+from datetime import datetime, timedelta
+
+API_key = '5b65f99e785c9b22cca3eb29105347a9'                            # Мой API-ключ для OpenWeatherMap
+lang = 'ru'
 
 def transfer_temperature(T):
     "Перевод температуры из градусов Кельвина в градусы Цельсия"
@@ -14,9 +18,40 @@ def transfer_pressure(P):
     P = round(P, 2)
     return P
 
+def get_coordinates(town_name):
+    "Получение широты и долготы выбранного города"
+    country_code = 'RU'
+    url = f'http://api.openweathermap.org/geo/1.0/direct?q={town_name},{country_code}&limit=1&appid={API_key}'
+    response = requests.get(url)                                        # Делаем запрос по указанному url
+    response = response.json()                                          # Получаем ответ в формате JSON
+    lat = response[0]['lat']                                            # Широта
+    lon = response[0]['lon']                                            # Долгота
+    return lat, lon
+
+def town_forecast(lat, lon):
+    "Получение прогноза погоды для выбранного города"
+    url = f'http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_key}&lang={lang}'
+    response = requests.get(url)                                        # Делаем запрос по указанному url
+    response = response.json()                                          # Получаем ответ в формате JSON
+    Date = []; Time = []; Temp = []                                     # Инициализируем списки для сохранения данных
+    delta_t = response['city']['timezone']                              # Получаем смещение в секундах относительно UTC для выбранного города
+    delta_t = timedelta(seconds=delta_t)                                # Переводим смещение во временной формат
+    for i in range(0, 10):
+        dt = response['list'][i]['dt']                                  # Получаем время в секундах с начала эпохи
+        dt = datetime.utcfromtimestamp(dt)                              # Конвертируем в читаемый формат для UTC
+        dt+=delta_t                                                     # Получаем дату и время в выбранном городе
+        time = dt.strftime('%H:%M')                                     # Часы и минуты
+        Time.append(time)
+        date = dt.strftime('%d-%m')                                     # День и месяц
+        Date.append(date)
+        temp = response['list'][i]['main']['temp']                      # Температура            
+        temp = transfer_temperature(temp)
+        Temp.append(temp)
+    return Date, Time, Temp
+
 def town_weather(request):
     "Получение информации о погоде в выбранном городе"
-
+    
     if request.method == 'POST':                                        # В случае POST-запроса считываем название города из формы
         form = TownForm(request.POST)
         if form.is_valid():
@@ -25,34 +60,27 @@ def town_weather(request):
         form = TownForm()
         town_name = 'Самара'
 
-    country_code = 'RU'
-    API_key = '5b65f99e785c9b22cca3eb29105347a9'
-    lang = 'ru'
-
-    # Запрос, в который мы передаём название города и код страны, а получаем в ответе широту и долготу
-    url1 = f'http://api.openweathermap.org/geo/1.0/direct?q={town_name},{country_code}&limit=1&appid={API_key}'
-    response1 = requests.get(url1)
-    response1 = response1.json()                                        # Получаем ответ в формате JSON
-    lat = response1[0]['lat']                                           # Широта
-    lon = response1[0]['lon']                                           # Долгота
+    lat, lon = get_coordinates(town_name)                               # Широта и долгота выбранного города
 
     # Запрос, в который мы передаём широту и долготу, а получаем в ответе информацию о погоде в данных координатах
-    url2 = f'http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}&lang={lang}'
-    response2 = requests.get(url2)
-    response2 = response2.json()                                        # Получаем ответ в формате JSON
+    url = f'http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}&lang={lang}'
+    response = requests.get(url)                                        # Делаем запрос по указанному url
+    response = response.json()                                          # Получаем ответ в формате JSON
     
-    state = response2['weather'][0]['description']                      # Общее погодное состояние
-    temp = response2['main']['temp']                                    # Температура
+    state = response['weather'][0]['description']                       # Общее погодное состояние
+    temp = response['main']['temp']                                     # Температура
     temp = transfer_temperature(temp)
-    temp_feel = response2['main']['feels_like']                         # Температура по ощущениям
+    temp_feel = response['main']['feels_like']                          # Температура по ощущениям
     temp_feel = transfer_temperature(temp_feel)
-    wind = response2['wind']['speed']                                   # Скорость ветра
-    pressure = response2['main']['pressure']                            # Давление
+    wind = response['wind']['speed']                                    # Скорость ветра
+    pressure = response['main']['pressure']                             # Давление
     pressure = transfer_pressure(pressure)
     
+    Date, Time, Temp = town_forecast(lat, lon)                          # Прогноз погоды в выбранном городе
+
     # Данные, передаваемые в шаблон
-    content = {'town_name': town_name, 'state': state, 'temp': temp, 'temp_feel': temp_feel, 'wind': wind, 
-               'pressure': pressure, 'form': form}
+    content = {'form': form, 'town_name': town_name, 'state': state, 'temp': temp, 'temp_feel': temp_feel, 'wind': wind, 
+               'pressure': pressure, 'Date': Date, 'Time': Time, 'Temp': Temp}
     return render(request, 'town_weather.html', content)
 
 

@@ -8,6 +8,23 @@
     <p>Ветер: {{wind}} м/с</p>
     <p>Давление: {{pressure}} мм рт. ст.</p>
     <br>
+
+    <table>
+        <tr><th>Дата</th>
+            {% for date in Date %}
+                <td>{{date}}</td>               <!--Вставляем данные прогноза погоды-->
+            {% endfor %}</tr>
+        <tr><th>Время</th>
+            {% for time in Time %}
+                <td>{{time}}</td>
+            {% endfor %}</tr>
+        <tr><th>Температура</th>
+            {% for temp in Temp %}
+                <td>{{temp}}</td>
+            {% endfor %}</tr>
+    </table>
+    <br>
+
     <p>Введите город, в котором вы хотели бы узнать погоду:</p>
     <form method="post">                        <!--Форма для ввода города-->
         {% csrf_token %}
