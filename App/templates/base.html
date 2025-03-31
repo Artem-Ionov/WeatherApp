@@ -3,6 +3,8 @@
     <head>
         <title>Моя погода</title>               <!--Название страницы-->
         <meta charset="utf-8">                  <!--Кодировка-->
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'styles.css' %}">
     </head>
     <body>
         {% block content %}{% endblock %}       <!--Блок content для каждого шаблона будет свой-->
