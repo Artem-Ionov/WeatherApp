@@ -42,8 +42,7 @@ def transfer_pressure(P):
 
 def get_coordinates(town_name):
     "Получение широты и долготы выбранного города"
-    country_code = 'RU'
-    url = f'http://api.openweathermap.org/geo/1.0/direct?q={town_name},{country_code}&limit=1&appid={API_key}'
+    url = f'http://api.openweathermap.org/geo/1.0/direct?q={town_name}&limit=1&appid={API_key}'
     response = requests.get(url)                                        # Делаем запрос по указанному url
     response = response.json()                                          # Получаем ответ в формате JSON
     lat = response[0]['lat']                                            # Широта
@@ -84,6 +83,8 @@ def town_weather(request):
         town_name = 'Самара'
 
     lat, lon = get_coordinates(town_name)                               # Широта и долгота выбранного города
+    delta = 0.05
+    bbox = f'{lon-delta},{lat-delta},{lon+delta},{lat+delta}'
 
     # Запрос, в который мы передаём широту и долготу, а получаем в ответе информацию о погоде в данных координатах
     url = f'http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}&lang={lang}'
@@ -91,6 +92,7 @@ def town_weather(request):
     response = response.json()                                          # Получаем ответ в формате JSON
     
     state = response['weather'][0]['description']                       # Общее погодное состояние
+    icon = response['weather'][0]['icon']                               # Код иконки
     temp = response['main']['temp']                                     # Температура
     temp = transfer_temperature(temp)
     temp_feel = response['main']['feels_like']                          # Температура по ощущениям
@@ -104,8 +106,9 @@ def town_weather(request):
     Date, Time, Temp = town_forecast(lat, lon)                          # Прогноз погоды в выбранном городе
 
     # Данные, передаваемые в шаблон
-    content = {'form': form, 'town_name': town_name, 'state': state, 'temp': temp, 'temp_feel': temp_feel, 'wind_speed': wind_speed, 
-               'wind_deg': wind_deg, 'pressure': pressure, 'Date': Date, 'Time': Time, 'Temp': Temp}
+    content = {'form': form, 'town_name': town_name, 'bbox': bbox, 'state': state, 'icon': icon, 'temp': temp, 
+               'temp_feel': temp_feel, 'wind_speed': wind_speed, 'wind_deg': wind_deg, 'pressure': pressure, 'Date': Date, 
+               'Time': Time, 'Temp': Temp}
     return render(request, 'town_weather.html', content)
 
 

@@ -1,12 +1,12 @@
-<!DOCTYPE html>                                 <!--Это базовый шаблон, из которого будут расширяться остальные-->
+<!DOCTYPE html>                                         <!--Это базовый шаблон, из которого будут расширяться остальные-->
 <html>
     <head>
-        <title>Моя погода</title>               <!--Название страницы-->
-        <meta charset="utf-8">                  <!--Кодировка-->
+        <title>Моя погода</title>                       <!--Название страницы-->
+        <meta charset="utf-8">                          <!--Кодировка-->
         {% load static %}
         <link rel="stylesheet" href="{% static 'styles.css' %}">
     </head>
     <body>
-        {% block content %}{% endblock %}       <!--Блок content для каждого шаблона будет свой-->
+        {% block content %}{% endblock %}               <!--Блок content для каждого шаблона будет свой-->
     </body>
 </html>
