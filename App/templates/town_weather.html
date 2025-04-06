@@ -1,19 +1,20 @@
-{% extends 'base.html' %}                                           <!--Расширяем от базового шаблона-->
+{% extends 'base.html' %}                                                   <!--Расширяем от базового шаблона-->
 
-{% block content %}                                                 <!--Заполняем блок content для этого шаблона-->
+{% block content %}                                                         <!--Заполняем блок content для этого шаблона-->
     <div class="container-data-map">
         <div class="data">
             <div class="icon-container">
                 <h3>Погода в городе {{town_name}}:</h3>                     <!--Вставляем данные, переданные из функции-->
                 <img src="http://openweathermap.org/img/wn/{{icon}}@2x.png" 
-                    alt="Ошибка загрузки иконки">                          <!--Загружаем иконку погоды с OpenWeatherMap-->
+                     alt="Ошибка загрузки иконки">                          <!--Загружаем иконку погоды с OpenWeatherMap-->
             </div>
             <p>Состояние погоды: {{state}}</p>
-            <p>Температура: {{temp}} °C</p>
-            <p>Ощущается как: {{temp_feel}} °C</p>
-            <p>Скорость ветра: {{wind_speed}} м/с</p>
-            <p>Направление ветра: {{wind_deg}}</p>
+            <p>Температура: {{temp}} °C (ощущается как {{temp_feel}} °C)</p>
+            <p>Ветер: {{wind_speed}} м/с, {{wind_deg}} (порывы {{wind_gust}} м/с)</p>
             <p>Давление: {{pressure}} мм рт. ст.</p>
+            <p>Влажность: {{humidity}} %</p>
+            <p>Видимость: {{visibility}} м</p>
+            <p>Время восхода: {{sunrise}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Время заката: {{sunset}}</p>
         </div>
         <div class="map">
             <iframe
@@ -22,30 +23,36 @@
                 src="https://www.openstreetmap.org/export/embed.html?bbox={{bbox}}&layer=map">
             </iframe>
         </div>
+    </div>    
+    <hr>
+    <div class="forecast">
+        <p>Прогноз на 2 дня:</p>
+        <table>
+            <tr><th>Дата</th>
+                {% for date in Date %}
+                    <td>{{date}}</td>                                       <!--Вставляем данные прогноза погоды-->
+                {% endfor %}</tr>
+            <tr><th>Время</th>
+                {% for time in Time %}
+                    <td>{{time}}</td>
+                {% endfor %}</tr>
+            <tr><th>Общее</th>
+                {% for icon in Icon %}
+                    <td><img src="http://openweathermap.org/img/wn/{{icon}}@2x.png"></td>
+                {% endfor %}</tr>
+            <tr><th>Температура</th>
+                {% for temp in Temp %}
+                    <td>{{temp}}</td>
+                {% endfor %}</tr>
+        </table>
     </div>
-    
     <hr>
-    <p>Прогноз на 2 дня:</p>
-    <table>
-        <tr><th>Дата</th>
-            {% for date in Date %}
-                <td>{{date}}</td>                                   <!--Вставляем данные прогноза погоды-->
-            {% endfor %}</tr>
-        <tr><th>Время</th>
-            {% for time in Time %}
-                <td>{{time}}</td>
-            {% endfor %}</tr>
-        <tr><th>Температура</th>
-            {% for temp in Temp %}
-                <td>{{temp}}</td>
-            {% endfor %}</tr>
-    </table>
-    
-    <hr>
-    <p>Введите город, в котором вы хотели бы узнать погоду:</p>
-    <form method="post">                                           <!--Форма для ввода города-->
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit">Показать погоду</button>
-    </form>
+    <div class="choice">
+        <p>Введите город, в котором вы хотели бы узнать погоду:</p>
+        <form method="post">                                                <!--Форма для ввода города-->
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type="submit">Показать погоду</button>
+        </form>
+    </div>
 {% endblock %}
