@@ -11,19 +11,17 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()                                               # Загрузка переменных окружения из файла .env
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+SECRET_KEY = os.environ.get('SECRET_KEY', 'secretkey')      # Получение соответствующих значений или значений по умолчанию
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-@!z002e=q_v*54#!^clb62p!ch@$*5s_7bs_=tl2!$h(u%59g("
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
 
 ALLOWED_HOSTS = []
 
@@ -37,7 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "App.apps.AppConfig"                                # Регистрируем приложение App
+    "App.apps.AppConfig"                                    # Регистрируем приложение App
 ]
 
 MIDDLEWARE = [
